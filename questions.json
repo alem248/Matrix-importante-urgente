@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "question": "¿Esta tarea tiene un plazo inminente o límite de tiempo próximo?",
+      "type": "urgency",
+      "answers": [
+        {
+          "text": "Sí, tiene un plazo muy próximo o debe hacerse hoy/mañana",
+          "value": true
+        },
+        {
+          "text": "No, el plazo es lejano o flexible",
+          "value": false
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "question": "¿Si no completas esta tarea, habrá consecuencias negativas inmediatas?",
+      "type": "urgency",
+      "answers": [
+        {
+          "text": "Sí, causaría problemas inmediatos importantes",
+          "value": true
+        },
+        {
+          "text": "No, las consecuencias son mínimas o a largo plazo",
+          "value": false
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "question": "¿Esta tarea se alinea con tus objetivos y valores personales/profesionales?",
+      "type": "importance",
+      "answers": [
+        {
+          "text": "Sí, es fundamental para mis metas",
+          "value": true
+        },
+        {
+          "text": "No, es algo secundario o irrelevante",
+          "value": false
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "question": "¿Completar esta tarea contribuirá significativamente a tu crecimiento o resultados?",
+      "type": "importance",
+      "answers": [
+        {
+          "text": "Sí, tendrá un impacto importante",
+          "value": true
+        },
+        {
+          "text": "No, el impacto es mínimo",
+          "value": false
+        }
+      ]
+    }
+  ]
+}
