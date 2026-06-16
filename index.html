@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matriz de Eisenhower - Priorización de Tareas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Pantalla 1: Ingreso de Actividades -->
+        <div id="screen-activities" class="screen active">
+            <header class="header">
+                <h1>📋 Matriz de Eisenhower</h1>
+                <p>Organiza tus tareas por urgencia e importancia</p>
+            </header>
+
+            <div class="content">
+                <div class="section">
+                    <h2>Paso 1: Ingresa tus Actividades</h2>
+                    <p class="subtitle">Escribe todas las tareas que necesitas completar, una por línea</p>
+                    
+                    <textarea 
+                        id="activities-input" 
+                        placeholder="Ej:&#10;Reunión con el cliente&#10;Revisar emails&#10;Proyecto importante&#10;Llamada personal&#10;Capacitación profesional"
+                        rows="8"></textarea>
+
+                    <div class="button-group">
+                        <button id="btn-continue" class="btn btn-primary">Continuar →</button>
+                    </div>
+
+                    <div id="error-message" class="error-message hidden"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla 2: Clasificación de Tareas -->
+        <div id="screen-questions" class="screen">
+            <header class="header">
+                <h1>❓ Clasificando tus Tareas</h1>
+                <p id="progress-text" class="progress-text">Tarea 1 de 1</p>
+            </header>
+
+            <div class="content">
+                <div class="question-card">
+                    <h2 id="current-task" class="task-title">Tarea</h2>
+                    
+                    <div class="questions-container" id="questions-container">
+                        <!-- Las preguntas se cargarán aquí desde el JSON -->
+                    </div>
+
+                    <div class="button-group">
+                        <button id="btn-previous" class="btn btn-secondary">← Anterior</button>
+                        <button id="btn-next" class="btn btn-primary">Siguiente →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla 3: Matriz de Eisenhower -->
+        <div id="screen-matrix" class="screen">
+            <header class="header">
+                <h1>📊 Tu Matriz de Eisenhower</h1>
+                <p>Tareas organizadas por urgencia e importancia</p>
+            </header>
+
+            <div class="content">
+                <div class="matrix-container">
+                    <div class="matrix-header">
+                        <div class="matrix-label top-left">IMPORTANTE</div>
+                        <div class="matrix-label top-right">NO IMPORTANTE</div>
+                    </div>
+
+                    <div class="matrix">
+                        <!-- Cuadrante 1: Urgente e Importante -->
+                        <div class="quadrant quadrant-1">
+                            <div class="quadrant-header">
+                                <span class="icon">🔴</span>
+                                <h3>Urgente & Importante</h3>
+                            </div>
+                            <p class="quadrant-subtitle">Hacer ahora</p>
+                            <div class="tasks-list" id="quadrant-1"></div>
+                        </div>
+
+                        <!-- Cuadrante 2: No Urgente pero Importante -->
+                        <div class="quadrant quadrant-2">
+                            <div class="quadrant-header">
+                                <span class="icon">🟡</span>
+                                <h3>No Urgente & Importante</h3>
+                            </div>
+                            <p class="quadrant-subtitle">Planificar</p>
+                            <div class="tasks-list" id="quadrant-2"></div>
+                        </div>
+
+                        <!-- Cuadrante 3: Urgente pero No Importante -->
+                        <div class="quadrant quadrant-3">
+                            <div class="quadrant-header">
+                                <span class="icon">🟠</span>
+                                <h3>Urgente & No Importante</h3>
+                            </div>
+                            <p class="quadrant-subtitle">Delegar</p>
+                            <div class="tasks-list" id="quadrant-3"></div>
+                        </div>
+
+                        <!-- Cuadrante 4: No Urgente y No Importante -->
+                        <div class="quadrant quadrant-4">
+                            <div class="quadrant-header">
+                                <span class="icon">⚪</span>
+                                <h3>No Urgente & No Importante</h3>
+                            </div>
+                            <p class="quadrant-subtitle">Eliminar</p>
+                            <div class="tasks-list" id="quadrant-4"></div>
+                        </div>
+                    </div>
+
+                    <div class="matrix-axis">
+                        <div class="axis-left">
+                            <p>↑ URGENCIA →</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button id="btn-restart" class="btn btn-secondary">← Empezar de Nuevo</button>
+                    <button id="btn-export" class="btn btn-primary">📥 Descargar Reporte</button>
+                </div>
+
+                <div class="summary">
+                    <h3>Resumen</h3>
+                    <div class="summary-stats">
+                        <div class="stat">
+                            <span class="stat-number" id="total-tasks">0</span>
+                            <span class="stat-label">Total de Tareas</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number" id="urgent-important">0</span>
+                            <span class="stat-label">Urgentes e Importantes</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number" id="important-only">0</span>
+                            <span class="stat-label">Solo Importantes</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
