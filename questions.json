@@ -2,6 +2,12 @@
   "questions": [
     {
       "id": 1,
+      "question": "¿Cuál es la fecha límite de esta tarea?",
+      "type": "deadline",
+      "inputType": "date"
+    },
+    {
+      "id": 2,
       "question": "¿Esta tarea tiene un plazo inminente o límite de tiempo próximo?",
       "type": "urgency",
       "answers": [
@@ -16,7 +22,7 @@
       ]
     },
     {
-      "id": 2,
+      "id": 3,
       "question": "¿Si no completas esta tarea, habrá consecuencias negativas inmediatas?",
       "type": "urgency",
       "answers": [
@@ -31,7 +37,7 @@
       ]
     },
     {
-      "id": 3,
+      "id": 4,
       "question": "¿Esta tarea se alinea con tus objetivos y valores personales/profesionales?",
       "type": "importance",
       "answers": [
@@ -46,7 +52,7 @@
       ]
     },
     {
-      "id": 4,
+      "id": 5,
       "question": "¿Completar esta tarea contribuirá significativamente a tu crecimiento o resultados?",
       "type": "importance",
       "answers": [
