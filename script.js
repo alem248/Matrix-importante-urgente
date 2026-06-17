@@ -113,12 +113,14 @@ function handleContinueActivities() {
     // Inicializar respuestas y clasificaciones
     state.activities.forEach(activity => {
         state.answers[activity] = {
+            deadline: null,
             urgency: [],
             importance: []
         };
         state.classifications[activity] = {
             isUrgent: false,
-            isImportant: false
+            isImportant: false,
+            deadline: null
         };
     });
 
@@ -143,7 +145,7 @@ function displayQuestion() {
     const question = state.questions[state.currentQuestionIndex];
     questionsContainer.innerHTML = '';
 
-    // Crear grupo de radio buttons
+    // Crear grupo de preguntas
     const questionGroup = document.createElement('div');
     questionGroup.className = 'question-text';
     
@@ -153,37 +155,60 @@ function displayQuestion() {
     questionLabel.style.fontSize = '1.1rem';
     questionGroup.appendChild(questionLabel);
 
-    question.answers.forEach((answer, index) => {
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'question-item';
-
-        const inputId = `answer-${state.currentTaskIndex}-${state.currentQuestionIndex}-${index}`;
-        const input = document.createElement('input');
-        input.type = 'radio';
-        input.id = inputId;
-        input.name = `question-${state.currentTaskIndex}-${state.currentQuestionIndex}`;
-        input.value = answer.value;
-
-        // Recuperar respuesta anterior si existe
-        const answerIndex = state.answers[currentActivity][question.type].findIndex(
-            a => a.questionId === question.id
-        );
-        if (answerIndex !== -1) {
-            input.checked = state.answers[currentActivity][question.type][answerIndex].value === answer.value;
+    // Manejar preguntas de tipo fecha
+    if (question.inputType === 'date') {
+        const dateDiv = document.createElement('div');
+        dateDiv.className = 'date-input-wrapper';
+        
+        const dateInput = document.createElement('input');
+        dateInput.type = 'date';
+        dateInput.id = `date-${state.currentTaskIndex}-${state.currentQuestionIndex}`;
+        
+        // Recuperar fecha anterior si existe
+        if (state.answers[currentActivity].deadline) {
+            dateInput.value = state.answers[currentActivity].deadline;
         }
-
-        input.addEventListener('change', () => {
-            saveAnswer(question.id, question.type, answer.value);
+        
+        dateInput.addEventListener('change', () => {
+            saveAnswer(question.id, question.type, dateInput.value);
         });
+        
+        dateDiv.appendChild(dateInput);
+        questionGroup.appendChild(dateDiv);
+    } else {
+        // Manejar preguntas de tipo radio (urgencia e importancia)
+        question.answers.forEach((answer, index) => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'question-item';
 
-        const label = document.createElement('label');
-        label.htmlFor = inputId;
-        label.appendChild(document.createTextNode(answer.text));
+            const inputId = `answer-${state.currentTaskIndex}-${state.currentQuestionIndex}-${index}`;
+            const input = document.createElement('input');
+            input.type = 'radio';
+            input.id = inputId;
+            input.name = `question-${state.currentTaskIndex}-${state.currentQuestionIndex}`;
+            input.value = answer.value;
 
-        itemDiv.appendChild(input);
-        itemDiv.appendChild(label);
-        questionGroup.appendChild(itemDiv);
-    });
+            // Recuperar respuesta anterior si existe
+            const answerIndex = state.answers[currentActivity][question.type].findIndex(
+                a => a.questionId === question.id
+            );
+            if (answerIndex !== -1) {
+                input.checked = state.answers[currentActivity][question.type][answerIndex].value === answer.value;
+            }
+
+            input.addEventListener('change', () => {
+                saveAnswer(question.id, question.type, answer.value);
+            });
+
+            const label = document.createElement('label');
+            label.htmlFor = inputId;
+            label.appendChild(document.createTextNode(answer.text));
+
+            itemDiv.appendChild(input);
+            itemDiv.appendChild(label);
+            questionGroup.appendChild(itemDiv);
+        });
+    }
 
     questionsContainer.innerHTML = '';
     questionsContainer.appendChild(questionGroup);
@@ -197,14 +222,20 @@ function displayQuestion() {
 
 function saveAnswer(questionId, type, value) {
     const currentActivity = state.activities[state.currentTaskIndex];
-    const answers = state.answers[currentActivity][type];
-
-    // Encontrar y actualizar o agregar respuesta
-    const existingIndex = answers.findIndex(a => a.questionId === questionId);
-    if (existingIndex !== -1) {
-        answers[existingIndex].value = value;
+    
+    if (type === 'deadline') {
+        // Guardar fecha límite directamente
+        state.answers[currentActivity].deadline = value;
+        state.classifications[currentActivity].deadline = value;
     } else {
-        answers.push({ questionId, value });
+        // Guardar respuestas de urgencia e importancia
+        const answers = state.answers[currentActivity][type];
+        const existingIndex = answers.findIndex(a => a.questionId === questionId);
+        if (existingIndex !== -1) {
+            answers[existingIndex].value = value;
+        } else {
+            answers.push({ questionId, value });
+        }
     }
 }
 
@@ -273,7 +304,29 @@ function renderMatrix() {
         const classification = state.classifications[activity];
         const taskDiv = document.createElement('div');
         taskDiv.className = 'task-item';
-        taskDiv.textContent = activity;
+        
+        // Crear contenido con tarea y fecha
+        const taskContent = document.createElement('div');
+        taskContent.style.display = 'flex';
+        taskContent.style.flexDirection = 'column';
+        taskContent.style.gap = '5px';
+        
+        const taskName = document.createElement('span');
+        taskName.style.fontWeight = '500';
+        taskName.textContent = activity;
+        taskContent.appendChild(taskName);
+        
+        // Agregar fecha si existe
+        if (classification.deadline) {
+            const dateSpan = document.createElement('span');
+            dateSpan.style.fontSize = '0.85rem';
+            dateSpan.style.opacity = '0.8';
+            const deadlineDate = new Date(classification.deadline);
+            dateSpan.textContent = `📅 ${deadlineDate.toLocaleDateString('es-ES')}`;
+            taskContent.appendChild(dateSpan);
+        }
+        
+        taskDiv.appendChild(taskContent);
 
         if (classification.isUrgent && classification.isImportant) {
             document.getElementById('quadrant-1').appendChild(taskDiv);
@@ -345,6 +398,15 @@ function handleExport() {
     let reportContent = `MATRIZ DE EISENHOWER - REPORTE DE TAREAS\n`;
     reportContent += `Generado: ${new Date().toLocaleDateString('es-ES')}\n\n`;
 
+    // Función auxiliar para formatear tareas con fecha
+    const formatTask = (task) => {
+        const classification = state.classifications[task];
+        const dateStr = classification.deadline 
+            ? ` [Fecha límite: ${new Date(classification.deadline).toLocaleDateString('es-ES')}]`
+            : '';
+        return `${task}${dateStr}`;
+    };
+
     // Cuadrante 1
     reportContent += `\n🔴 URGENTE E IMPORTANTE (Hacer ahora)\n`;
     reportContent += `═══════════════════════════════════════\n`;
@@ -352,7 +414,7 @@ function handleExport() {
         state.classifications[a].isUrgent && state.classifications[a].isImportant
     );
     if (quad1.length > 0) {
-        quad1.forEach((task, i) => reportContent += `${i + 1}. ${task}\n`);
+        quad1.forEach((task, i) => reportContent += `${i + 1}. ${formatTask(task)}\n`);
     } else {
         reportContent += `(sin tareas)\n`;
     }
@@ -364,7 +426,7 @@ function handleExport() {
         !state.classifications[a].isUrgent && state.classifications[a].isImportant
     );
     if (quad2.length > 0) {
-        quad2.forEach((task, i) => reportContent += `${i + 1}. ${task}\n`);
+        quad2.forEach((task, i) => reportContent += `${i + 1}. ${formatTask(task)}\n`);
     } else {
         reportContent += `(sin tareas)\n`;
     }
@@ -376,7 +438,7 @@ function handleExport() {
         state.classifications[a].isUrgent && !state.classifications[a].isImportant
     );
     if (quad3.length > 0) {
-        quad3.forEach((task, i) => reportContent += `${i + 1}. ${task}\n`);
+        quad3.forEach((task, i) => reportContent += `${i + 1}. ${formatTask(task)}\n`);
     } else {
         reportContent += `(sin tareas)\n`;
     }
@@ -388,7 +450,7 @@ function handleExport() {
         !state.classifications[a].isUrgent && !state.classifications[a].isImportant
     );
     if (quad4.length > 0) {
-        quad4.forEach((task, i) => reportContent += `${i + 1}. ${task}\n`);
+        quad4.forEach((task, i) => reportContent += `${i + 1}. ${formatTask(task)}\n`);
     } else {
         reportContent += `(sin tareas)\n`;
     }
